@@ -1,7 +1,5 @@
 package com.mylsaber;
 
-import com.mylsaber.config.MainConfig;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 /**
@@ -10,7 +8,7 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 public class MainTest {
 	public static void main(String[] args) {
 		final FileSystemXmlApplicationContext context = new FileSystemXmlApplicationContext("D:\\JavaLearn\\source-code\\spring.xml");
-		final Object student = context.getBean("student");
+		final Object student = context.getBean("springBean");
 		System.out.println(student);
 	}
 }
