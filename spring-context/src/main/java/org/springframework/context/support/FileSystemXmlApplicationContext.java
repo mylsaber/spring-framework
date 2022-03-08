@@ -146,6 +146,8 @@ public class FileSystemXmlApplicationContext extends AbstractXmlApplicationConte
 
 	/**
 	 * Resolve resource paths as file system paths.
+	 * 实例化一个 FileSystemResource 并返回，以便后续对资源的 IO 操作
+	 * 本方法是在 DefaultResourceLoader 的 getResource() 方法中被调用的，
 	 * <p>Note: Even if a given path starts with a slash, it will get
 	 * interpreted as relative to the current VM working directory.
 	 * This is consistent with the semantics in a Servlet container.
