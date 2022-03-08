@@ -71,6 +71,10 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 	private static final int METHOD_REPLACER = 2;
 
 
+	/**
+	 * 下面两个方法都通过实例化自己的私有静态内部类 CglibSubclassCreator，
+	 * 然后调用该内部类对象的实例化方法 instantiate() 完成实例化
+	 */
 	@Override
 	protected Object instantiateWithMethodInjection(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner) {
 		return instantiateWithMethodInjection(bd, beanName, owner, null);
@@ -88,6 +92,8 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 	/**
 	 * An inner class created for historical reasons to avoid external CGLIB dependency
 	 * in Spring versions earlier than 3.2.
+	 *
+	 * 为避免 3.2 之前的 Spring 版本中的外部 cglib 依赖而创建的内部类。
 	 */
 	private static class CglibSubclassCreator {
 
@@ -111,6 +117,8 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 		 * @param args arguments to use for the constructor.
 		 * Ignored if the {@code ctor} parameter is {@code null}.
 		 * @return new instance of the dynamically generated subclass
+		 *
+		 * 使用 CGLIB 进行 bean对象 实例化
 		 */
 		public Object instantiate(@Nullable Constructor<?> ctor, Object... args) {
 			Class<?> subclass = createEnhancedSubclass(this.beanDefinition);

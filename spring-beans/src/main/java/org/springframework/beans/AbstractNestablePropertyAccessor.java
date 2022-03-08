@@ -242,6 +242,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 			throw new NotWritablePropertyException(getRootClass(), this.nestedPath + propertyName,
 					"Nested property in path '" + propertyName + "' does not exist", ex);
 		}
+		// PropertyTokenHolder 是一个用于内部使用的内部类
 		PropertyTokenHolder tokens = getPropertyNameTokens(getFinalPath(nestedPa, propertyName));
 		nestedPa.setPropertyValue(tokens, new PropertyValue(propertyName, value));
 	}
@@ -271,6 +272,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 	}
 
 	protected void setPropertyValue(PropertyTokenHolder tokens, PropertyValue pv) throws BeansException {
+		// 对集合类型的属性注入，PropertyTokenHolder 的 keys 是用来保存集合类型属性的 size
 		if (tokens.keys != null) {
 			processKeyedProperty(tokens, pv);
 		}

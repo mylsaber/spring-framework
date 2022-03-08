@@ -64,6 +64,10 @@ public abstract class AbstractPropertyAccessor extends TypeConverterSupport impl
 	}
 
 
+	/**
+	 * setPropertyValues() 方法有多种重载，但最终都走的是
+	 * setPropertyValues(PropertyValues pvs, boolean ignoreUnknown, boolean ignoreInvalid)重载方法
+	 */
 	@Override
 	public void setPropertyValue(PropertyValue pv) throws BeansException {
 		setPropertyValue(pv.getName(), pv.getValue());
@@ -100,6 +104,11 @@ public abstract class AbstractPropertyAccessor extends TypeConverterSupport impl
 				// setPropertyValue may throw any BeansException, which won't be caught
 				// here, if there is a critical failure such as no matching field.
 				// We can attempt to deal only with less serious exceptions.
+				/**
+				 * ！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
+				 * 这是 bean属性值注入 具体实现的入口
+				 * ！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
+				 */
 				try {
 					setPropertyValue(pv);
 				}
@@ -130,6 +139,8 @@ public abstract class AbstractPropertyAccessor extends TypeConverterSupport impl
 		}
 
 		// If we encountered individual exceptions, throw the composite exception.
+		// 如果出现 PropertyAccessException 异常，则将这些异常积累起来放到一个集合中，然后一次性抛出！！！
+		// 这种抛异常的方式 在实际的开发中也时常使用，可以好好看一下，对比一下
 		if (propertyAccessExceptions != null) {
 			PropertyAccessException[] paeArray = propertyAccessExceptions.toArray(new PropertyAccessException[0]);
 			throw new PropertyBatchUpdateException(paeArray);

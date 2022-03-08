@@ -100,6 +100,9 @@ class BeanDefinitionValueResolver {
 	 * <li>A ManagedMap. In this case the value may be a RuntimeBeanReference
 	 * or Collection that will need to be resolved.
 	 * <li>An ordinary object or {@code null}, in which case it's left alone.
+	 *
+	 * 解析属性值，对注入类型进行转换
+	 *
 	 * @param argName the name of the argument that the value is defined for
 	 * @param value the value object to resolve
 	 * @return the resolved object
@@ -108,10 +111,17 @@ class BeanDefinitionValueResolver {
 	public Object resolveValueIfNecessary(Object argName, @Nullable Object value) {
 		// We must check each value to see whether it requires a runtime reference
 		// to another bean to be resolved.
+		// 对引用类型的属性进行解析，RuntimeBeanReference 是在对 BeanDefinition 进行解析时生成的数据对象
 		if (value instanceof RuntimeBeanReference) {
 			RuntimeBeanReference ref = (RuntimeBeanReference) value;
+			/**
+			 * ！！！！！！！！！！！！！！！！
+			 * 解析引用类型的属性值
+			 * ！！！！！！！！！！！！！！！！
+			 */
 			return resolveReference(argName, ref);
 		}
+		// 对属性值是引用容器中另一个 bean 名称的解析
 		else if (value instanceof RuntimeBeanNameReference) {
 			String refName = ((RuntimeBeanNameReference) value).getBeanName();
 			refName = String.valueOf(doEvaluate(refName));
@@ -121,6 +131,7 @@ class BeanDefinitionValueResolver {
 			}
 			return refName;
 		}
+		// 对 BeanDefinitionHolder 类型属性的解析，主要是 bean 中的内部类
 		else if (value instanceof BeanDefinitionHolder) {
 			// Resolve BeanDefinitionHolder: contains BeanDefinition with name and aliases.
 			BeanDefinitionHolder bdHolder = (BeanDefinitionHolder) value;
@@ -144,14 +155,17 @@ class BeanDefinitionValueResolver {
 			}
 			return result;
 		}
+		// 对集合数组类型的属性解析
 		else if (value instanceof ManagedArray) {
 			// May need to resolve contained runtime references.
 			ManagedArray array = (ManagedArray) value;
+			// 获取数组的类型
 			Class<?> elementType = array.resolvedElementType;
 			if (elementType == null) {
 				String elementTypeName = array.getElementTypeName();
 				if (StringUtils.hasText(elementTypeName)) {
 					try {
+						// 使用反射机制创建指定类型的对象
 						elementType = ClassUtils.forName(elementTypeName, this.beanFactory.getBeanClassLoader());
 						array.resolvedElementType = elementType;
 					}
@@ -162,26 +176,34 @@ class BeanDefinitionValueResolver {
 								"Error resolving array type for " + argName, ex);
 					}
 				}
+				// 没有获取到数组的类型，也没有获取到数组元素的类型
+				// 则直接设置数组的类型为 Object
 				else {
 					elementType = Object.class;
 				}
 			}
+			// 创建指定类型的数组
 			return resolveManagedArray(argName, (List<?>) value, elementType);
 		}
+		// 解析 list 类型的属性值
 		else if (value instanceof ManagedList) {
 			// May need to resolve contained runtime references.
 			return resolveManagedList(argName, (List<?>) value);
 		}
+		// 解析 set 类型的属性值
 		else if (value instanceof ManagedSet) {
 			// May need to resolve contained runtime references.
 			return resolveManagedSet(argName, (Set<?>) value);
 		}
+		// 解析 map 类型的属性值
 		else if (value instanceof ManagedMap) {
 			// May need to resolve contained runtime references.
 			return resolveManagedMap(argName, (Map<?, ?>) value);
 		}
+		// 解析 Properties 类型的属性值，Properties 其实就是 key 和 value 均为字符串的 map
 		else if (value instanceof ManagedProperties) {
 			Properties original = (Properties) value;
+			// 创建一个拷贝，用于作为解析后的返回值
 			Properties copy = new Properties();
 			original.forEach((propKey, propValue) -> {
 				if (propKey instanceof TypedStringValue) {
@@ -199,16 +221,20 @@ class BeanDefinitionValueResolver {
 			});
 			return copy;
 		}
+		// 解析字符串类型的属性值
 		else if (value instanceof TypedStringValue) {
 			// Convert value to target type here.
 			TypedStringValue typedStringValue = (TypedStringValue) value;
 			Object valueObject = evaluate(typedStringValue);
 			try {
+				// 获取属性的目标类型
 				Class<?> resolvedTargetType = resolveTargetType(typedStringValue);
 				if (resolvedTargetType != null) {
+					// 对目标类型的属性进行解析，递归调用
 					return this.typeConverter.convertIfNecessary(valueObject, resolvedTargetType);
 				}
 				else {
+					// 没有获取到属性的目标对象，则按 Object 类型返回
 					return valueObject;
 				}
 			}
@@ -297,12 +323,15 @@ class BeanDefinitionValueResolver {
 
 	/**
 	 * Resolve a reference to another bean in the factory.
+	 * 解析引用类型的属性值
 	 */
 	@Nullable
 	private Object resolveReference(Object argName, RuntimeBeanReference ref) {
 		try {
 			Object bean;
+			// 获取 所引用bean 的 beanType
 			Class<?> beanType = ref.getBeanType();
+			// 如果引用的对象在父容器中，则从父容器中获取指定的引用对象
 			if (ref.isToParent()) {
 				BeanFactory parent = this.beanFactory.getParentBeanFactory();
 				if (parent == null) {
@@ -318,6 +347,8 @@ class BeanDefinitionValueResolver {
 					bean = parent.getBean(String.valueOf(doEvaluate(ref.getBeanName())));
 				}
 			}
+			// 从当前的容器中获取指定的引用 bean对象，如果指定的 bean 没有被实例化
+			// 则会递归触发引用 bean 的初始化和依赖注入
 			else {
 				String resolvedName;
 				if (beanType != null) {
@@ -329,6 +360,7 @@ class BeanDefinitionValueResolver {
 					resolvedName = String.valueOf(doEvaluate(ref.getBeanName()));
 					bean = this.beanFactory.getBean(resolvedName);
 				}
+				// 为 refName对应的bean 注入 它所依赖的bean
 				this.beanFactory.registerDependentBean(resolvedName, this.beanName);
 			}
 			if (bean instanceof NullBean) {
