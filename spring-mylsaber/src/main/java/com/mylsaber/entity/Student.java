@@ -6,6 +6,15 @@ package com.mylsaber.entity;
 public class Student {
 	private Integer id;
 	private String name;
+	private SpringBean springBean;
+
+	public SpringBean getSpringBean() {
+		return springBean;
+	}
+
+	public void setSpringBean(SpringBean springBean) {
+		this.springBean = springBean;
+	}
 
 	public Student() {
 	}

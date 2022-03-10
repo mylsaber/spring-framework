@@ -130,6 +130,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 		try {
 			// 创建 IoC 容器，DefaultListableBeanFactory 类实现了 ConfigurableListableBeanFactory 接口
 			DefaultListableBeanFactory beanFactory = createBeanFactory();
+			// 指定序列化 id
 			beanFactory.setSerializationId(getId());
 			// 对 IoC 容器进行定制化，如设置启动参数，开启注解的自动装配等
 			customizeBeanFactory(beanFactory);
@@ -220,9 +221,11 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	 * @see DefaultListableBeanFactory#setAllowEagerClassLoading
 	 */
 	protected void customizeBeanFactory(DefaultListableBeanFactory beanFactory) {
+		// 如果属性 allowBeanDefinitionOverriding 不为空，可以设置是否允许覆盖同名称不同定义对象
 		if (this.allowBeanDefinitionOverriding != null) {
 			beanFactory.setAllowBeanDefinitionOverriding(this.allowBeanDefinitionOverriding);
 		}
+		// 如果属性 allowCircularReferences 不为空，可以设置是否允许循环依赖
 		if (this.allowCircularReferences != null) {
 			beanFactory.setAllowCircularReferences(this.allowCircularReferences);
 		}

@@ -9,6 +9,16 @@ public class SpringBean implements InitializingBean {
 	private String desc;
 	private String remark;
 
+	private Student student;
+
+	public Student getStudent() {
+		return student;
+	}
+
+	public void setStudent(Student student) {
+		this.student = student;
+	}
+
 	public SpringBean() {
 		System.out.println("SpringBean构造方法");
 	}
@@ -46,6 +56,7 @@ public class SpringBean implements InitializingBean {
 		return "SpringBean{" +
 				"desc='" + desc + '\'' +
 				", remark='" + remark + '\'' +
+				", student=" + student +
 				'}';
 	}
 }

@@ -163,7 +163,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	/** Logger used by this class. Available to subclasses. */
 	protected final Log logger = LogFactory.getLog(getClass());
 
-	/** Unique id for this context, if any. */
+	/**
+	 * 创建上下文唯一标识 id
+	 * Unique id for this context, if any. */
 	private String id = ObjectUtils.identityToString(this);
 
 	/** Display name. */
@@ -227,6 +229,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * Create a new AbstractApplicationContext with no parent.
 	 */
 	public AbstractApplicationContext() {
+		// 创建资源模式处理器
 		this.resourcePatternResolver = getResourcePatternResolver();
 	}
 
@@ -529,10 +532,18 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	public void refresh() throws BeansException, IllegalStateException {
 		synchronized (this.startupShutdownMonitor) {
 			// Prepare this context for refreshing.
-			// 调用容器准备刷新，获取容器的当前时间，同时给容器设置同步标识
+			/**
+			 * 容器刷新前的准备工作
+			 * 1. 设置容器启动时间
+			 * 2. 设置活跃状态为 true
+			 * 3. 设置关闭状态为 false
+			 * 4. 获取Environment对象，并加载当前系统的属性值到Environment对象中
+			 * 5. 准备监听器和事件的集合对象，默认为空的集合
+			 */
 			prepareRefresh();
 
 			// Tell the subclass to refresh the internal bean factory.
+			// 创建容器对象：DefaultListableBeanFactory
 			// 告诉子类启动 refreshBeanFactory() 方法，BeanDefinition 资源文件的载入从子类的 refreshBeanFactory() 方法启动开始
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
@@ -611,8 +622,11 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 */
 	protected void prepareRefresh() {
 		// Switch to active.
+		// 获取容器启动时间
 		this.startupDate = System.currentTimeMillis();
+		// 容器的关闭标志
 		this.closed.set(false);
+		// 容器的激活标志
 		this.active.set(true);
 
 		if (logger.isDebugEnabled()) {
@@ -625,24 +639,29 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		}
 
 		// Initialize any placeholder property sources in the context environment.
+		// 留给子类覆盖，初始化属性资源
 		initPropertySources();
 
 		// Validate that all properties marked as required are resolvable:
 		// see ConfigurablePropertyResolver#setRequiredProperties
+		// 创建并获取环境对象，验证需要的属性文件是否都已经放入环境中
 		getEnvironment().validateRequiredProperties();
 
 		// Store pre-refresh ApplicationListeners...
+		// 判断刷新前的应用程序监听器集合是否为空，如果为空，添加到集合中
 		if (this.earlyApplicationListeners == null) {
 			this.earlyApplicationListeners = new LinkedHashSet<>(this.applicationListeners);
 		}
 		else {
 			// Reset local application listeners to pre-refresh state.
+			// 重置刷新前的 应用监听器
 			this.applicationListeners.clear();
 			this.applicationListeners.addAll(this.earlyApplicationListeners);
 		}
 
 		// Allow for the collection of early ApplicationEvents,
 		// to be published once the multicaster is available...
+		// 创建刷新前的监听事件集合
 		this.earlyApplicationEvents = new LinkedHashSet<>();
 	}
 
@@ -664,6 +683,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 */
 	protected ConfigurableListableBeanFactory obtainFreshBeanFactory() {
 		// 自己定义了抽象的 refreshBeanFactory() 方法，具体实现交给了自己的子类
+		// 初始化 BeanFactory，并进行配置文件读取，将得到的BeanFactory设置到当前实例中
 		refreshBeanFactory();
 		// getBeanFactory() 也是一个抽象方法，交由子类实现
 		// 看到这里是不是很容易想起 “模板方法模式”，父类在模板方法中定义好流程，定义好抽象方法

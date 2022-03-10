@@ -1,5 +1,6 @@
 package com.mylsaber;
 
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 /**
@@ -7,7 +8,8 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
  */
 public class MainTest {
 	public static void main(String[] args) {
-		final FileSystemXmlApplicationContext context = new FileSystemXmlApplicationContext("D:\\JavaLearn\\source-code\\spring.xml");
+//		final FileSystemXmlApplicationContext context = new FileSystemXmlApplicationContext("D:\\JavaLearn\\source-code\\spring-${jfw}.xml");
+		final ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("spring-${username}.xml");
 		final Object student = context.getBean("springBean");
 		System.out.println(student);
 	}
