@@ -59,18 +59,24 @@ final class PostProcessorRegistrationDelegate {
 		// Invoke BeanDefinitionRegistryPostProcessors first, if any.
 		Set<String> processedBeans = new HashSet<>();
 
+		// 默认的是 DefaultListableBeanFactory 工厂，它实现了 BeanDefinitionRegistry 接口
 		if (beanFactory instanceof BeanDefinitionRegistry) {
 			BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
+			// 初始化常规 BeanFactoryPostProcessor 容器
 			List<BeanFactoryPostProcessor> regularPostProcessors = new ArrayList<>();
+			// 初始化注册 BeanDefinitionRegistryPostProcessor 容器
 			List<BeanDefinitionRegistryPostProcessor> registryProcessors = new ArrayList<>();
 
+			// 硬编码注册的后处理器
 			for (BeanFactoryPostProcessor postProcessor : beanFactoryPostProcessors) {
+				// 如果是 BeanDefinitionRegistryPostProcessor 类型后置处理器，就先执行对应方法，然后注册
 				if (postProcessor instanceof BeanDefinitionRegistryPostProcessor) {
 					BeanDefinitionRegistryPostProcessor registryProcessor =
 							(BeanDefinitionRegistryPostProcessor) postProcessor;
 					registryProcessor.postProcessBeanDefinitionRegistry(registry);
 					registryProcessors.add(registryProcessor);
 				}
+				// 否者加入到常规 BeanFactoryPostProcessor 容器中
 				else {
 					regularPostProcessors.add(postProcessor);
 				}
@@ -80,14 +86,26 @@ final class PostProcessorRegistrationDelegate {
 			// uninitialized to let the bean factory post-processors apply to them!
 			// Separate between BeanDefinitionRegistryPostProcessors that implement
 			// PriorityOrdered, Ordered, and the rest.
+			/*
+				不要在这里初始化FactoryBeans: 我们需要保留所有常规bean
+				未初始化，让bean工厂后处理器应用到它们!
+				BeanDefinitionRegistryPostProcessors之间的分离实现
+				排好序，点好，等等。
+
+				获取spring配置文件中定义的所有实现BeanFactoryPostProcessor接口的bean，然后根据优先级进行排序
+			 */
 			List<BeanDefinitionRegistryPostProcessor> currentRegistryProcessors = new ArrayList<>();
 
 			// First, invoke the BeanDefinitionRegistryPostProcessors that implement PriorityOrdered.
+			// 首先，调用实现优先排序的BeanDefinitionRegistryPostProcessors
 			String[] postProcessorNames =
 					beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
 			for (String ppName : postProcessorNames) {
+				// 如果是排序 BeanDefinitionRegistryPostProcessors
 				if (beanFactory.isTypeMatch(ppName, PriorityOrdered.class)) {
+					// 实例化这个 bean 并加入到当前注册中
 					currentRegistryProcessors.add(beanFactory.getBean(ppName, BeanDefinitionRegistryPostProcessor.class));
+					// 加入到后置处理器名称set中
 					processedBeans.add(ppName);
 				}
 			}

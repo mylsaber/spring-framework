@@ -18,9 +18,9 @@
 <!-- 		<property name="desc" value="原始的描述信息" />
 		<property name="remark" value="原始的备注信息" /> -->
 	</bean>
-<!-- 	
+
 	<bean id="myBeanPostProcessor" class="com.mylsaber.beanpostprocessor.MyBeanPostProcessor" />
-	<bean id="myBeanFactoryPostProcessor" class="com.mylsaber.beanfactory.MyBeanFactoryPostProcessor" /> -->
+	<bean id="myBeanFactoryPostProcessor" class="com.mylsaber.beanfactory.MyBeanFactoryPostProcessor" />
 
 </beans>
 

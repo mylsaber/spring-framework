@@ -747,6 +747,12 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * BeanPostProcessors etc in certain ApplicationContext implementations.
 	 * @param beanFactory the bean factory used by the application context
 	 */
+	/*
+		4. Spring 之所以强大，为世人所推崇，除了它功能上为大家提供了便例外，还有一方面是它
+		的完美架构，开放式的架构让使用它的程序员很容易根据业务需要扩展已经存在的功能。这种
+		开放式的设计在Spring 中随处可见，
+		例如在本例中就提供了一个空的函数实现postProcessBeanFactory来方便程序员在业务上做进一步扩展。
+	 */
 	protected void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
 	}
 
@@ -754,8 +760,17 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * Instantiate and invoke all registered BeanFactoryPostProcessor beans,
 	 * respecting explicit order if given.
 	 * <p>Must be called before singleton instantiation.
+	 *
+	 * 实例化和执行所有注册过的 BeanFactoryPostProcessor，尊重所期望的执行顺序
+	 */
+	/*
+		5. 激活各种BeanFactory 处理器。
+		BeanFactoryPostProcessor在refresh()中的invokeBeanFactoryPostProcessors中执行，
+			1、先遍历执行已经在容器中注册的BeanFactoryPostProcessor
+			2、再找BeanDefinition中的BeanFactoryPostProcessor，通过getBean方法实例化，并且执行。
 	 */
 	protected void invokeBeanFactoryPostProcessors(ConfigurableListableBeanFactory beanFactory) {
+		// 结尾有 Delegate 表示委派模式，委派其他类执行功能
 		PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(beanFactory, getBeanFactoryPostProcessors());
 
 		// Detect a LoadTimeWeaver and prepare for weaving, if found in the meantime
@@ -1150,7 +1165,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * no-op if {@link #getBeanFactory()} itself throws an exception in such a case.
 	 */
 	protected void assertBeanFactoryActive() {
+		// 是否存活
 		if (!this.active.get()) {
+			// 是否关闭
 			if (this.closed.get()) {
 				throw new IllegalStateException(getDisplayName() + " has been closed already");
 			}
@@ -1173,7 +1190,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 	@Override
 	public <T> T getBean(String name, Class<T> requiredType) throws BeansException {
+		// 判断 BeanFactory 是否存活
 		assertBeanFactoryActive();
+		// 获取 BeanFactory ，根据 BeanName + class 获取 Bean
 		return getBeanFactory().getBean(name, requiredType);
 	}
 

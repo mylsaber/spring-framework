@@ -94,15 +94,20 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 	 * @see org.springframework.beans.factory.FactoryBean#getObject()
 	 */
 	protected Object getObjectFromFactoryBean(FactoryBean<?> factory, String beanName, boolean shouldPostProcess) {
+		// 检查工厂是否单例 & 是否已经存在
 		if (factory.isSingleton() && containsSingleton(beanName)) {
 			synchronized (getSingletonMutex()) {
+				// 尝试从 FactoryBean 缓存中获取 FactoryBean
 				Object object = this.factoryBeanObjectCache.get(beanName);
 				if (object == null) {
+					// 从 FactoryBean 接口中获取
 					object = doGetObjectFromFactoryBean(factory, beanName);
 					// Only post-process and store if not put there already during getObject() call above
 					// (e.g. because of circular reference processing triggered by custom getBean calls)
+					// 从缓存 map 中获取
 					Object alreadyThere = this.factoryBeanObjectCache.get(beanName);
 					if (alreadyThere != null) {
+						// 如果缓存中有，覆盖 object
 						object = alreadyThere;
 					}
 					else {
@@ -111,8 +116,10 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 								// Temporarily return non-post-processed object, not storing it yet..
 								return object;
 							}
+							// 创建单例前的验证
 							beforeSingletonCreation(beanName);
 							try {
+								// 从 FactoryBean 接口创建的后置处理
 								object = postProcessObjectFromFactoryBean(object, beanName);
 							}
 							catch (Throwable ex) {
@@ -120,10 +127,13 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 										"Post-processing of FactoryBean's singleton object failed", ex);
 							}
 							finally {
+								// 单例bean创建之后
 								afterSingletonCreation(beanName);
 							}
 						}
+						// 检查一级缓存是否有这个 bean
 						if (containsSingleton(beanName)) {
+							// 加入 FactoryBean 缓存中
 							this.factoryBeanObjectCache.put(beanName, object);
 						}
 					}
