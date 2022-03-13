@@ -236,8 +236,11 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 
 	@Override
 	public Object getEarlyBeanReference(Object bean, String beanName) {
+		// 尝试获取缓存
 		Object cacheKey = getCacheKey(bean.getClass(), beanName);
+		// 加入缓存
 		this.earlyProxyReferences.put(cacheKey, bean);
+		// 生成并返回代理对象
 		return wrapIfNecessary(bean, beanName, cacheKey);
 	}
 
@@ -333,23 +336,32 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	 * @return a proxy wrapping the bean, or the raw bean instance as-is
 	 */
 	protected Object wrapIfNecessary(Object bean, String beanName, Object cacheKey) {
+		// 这个 bean 是否处理过
 		if (StringUtils.hasLength(beanName) && this.targetSourcedBeans.contains(beanName)) {
 			return bean;
 		}
+		// 这个 bean 是否需要代理
 		if (Boolean.FALSE.equals(this.advisedBeans.get(cacheKey))) {
 			return bean;
 		}
+		// 1. bean.class 是否是 spring 接口类型 2. 是否是AutowireCapableBeanFactory 接口
 		if (isInfrastructureClass(bean.getClass()) || shouldSkip(bean.getClass(), beanName)) {
+			// 向代理集合中插入值
 			this.advisedBeans.put(cacheKey, Boolean.FALSE);
 			return bean;
 		}
 
 		// Create proxy if we have advice.
+		// 获取方法增强
 		Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, null);
+		// 增强方法不为空
 		if (specificInterceptors != DO_NOT_PROXY) {
+			// 向代理集合中插入值
 			this.advisedBeans.put(cacheKey, Boolean.TRUE);
+			// 创建代理
 			Object proxy = createProxy(
 					bean.getClass(), beanName, specificInterceptors, new SingletonTargetSource(bean));
+			// 缓存代理对象
 			this.proxyTypes.put(cacheKey, proxy.getClass());
 			return proxy;
 		}
