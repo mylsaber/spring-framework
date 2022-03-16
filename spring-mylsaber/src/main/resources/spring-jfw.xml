@@ -8,19 +8,33 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
 		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
-	
+
 	<bean id="student" class="com.mylsaber.entity.Student">
-		<property name="springBean" ref="springBean" />
+		<property name="name" value="姜迪"/>
+<!--		<property name="springBean" ref="springBean" />-->
 	</bean>
 
-	<bean id="springBean" class="com.mylsaber.entity.SpringBean" init-method="initMethod">
-		<property name="student" ref="student" />
-<!-- 		<property name="desc" value="原始的描述信息" />
-		<property name="remark" value="原始的备注信息" /> -->
-	</bean>
+<!--	<bean id="springBean" class="com.mylsaber.entity.SpringBean" init-method="initMethod">-->
+<!--		<property name="student" ref="student" />-->
+<!--		<property name="desc" value="原始的描述信息" />-->
+<!--		<property name="remark" value="原始的备注信息" /> -->
+<!--	</bean>-->
 
-	<bean id="myBeanPostProcessor" class="com.mylsaber.beanpostprocessor.MyBeanPostProcessor" />
-	<bean id="myBeanFactoryPostProcessor" class="com.mylsaber.beanfactory.MyBeanFactoryPostProcessor" />
 
+<!--	<bean id="myBeanPostProcessor" class="com.mylsaber.beanpostprocessor.MyBeanPostProcessor" />-->
+<!--	<bean id="myBeanFactoryPostProcessor" class="com.mylsaber.beanfactory.MyBeanFactoryPostProcessor" />-->
+
+<!--	切面-->
+	<bean id="logAspect" class="com.mylsaber.aspect.LogAspect"/>
+	<aop:aspectj-autoproxy proxy-target-class="true"/>
+<!--	面向切面编程-->
+	<aop:config>
+		<aop:aspect ref="logAspect">
+<!--			定义切点-->
+			<aop:pointcut id="log" expression="execution(* com.mylsaber.entity.Student.getName(..))"/>
+			<aop:before method="before" pointcut-ref="log"/>
+			<aop:after method="after" pointcut-ref="log"/>
+		</aop:aspect>
+	</aop:config>
 </beans>
 

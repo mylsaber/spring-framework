@@ -101,6 +101,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 	private static final Map<Class<?>, Boolean> validatedClasses = new WeakHashMap<>();
 
 
+	// AdvisedSupport 持有一个 List<Advisor>属性
 	/** The configuration used to configure this proxy. */
 	protected final AdvisedSupport advised;
 
@@ -179,6 +180,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 			validateClassIfNecessary(proxySuperClass, classLoader);
 
 			// Configure CGLIB Enhancer...
+			// 创建并配置 Enhancer对象，Enhancer 是 CGLIB 中主要的操作类
 			Enhancer enhancer = createEnhancer();
 			if (classLoader != null) {
 				enhancer.setClassLoader(classLoader);
