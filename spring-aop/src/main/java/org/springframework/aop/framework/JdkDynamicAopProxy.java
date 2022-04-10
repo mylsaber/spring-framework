@@ -62,6 +62,8 @@ import org.springframework.util.ClassUtils;
  * @see ProxyFactory
  */
 final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializable {
+	// 可以看到，其实现了 InvocationHandler 接口，所以肯定也定义了一个 使用 java.lang.reflect.Proxy
+	// 动态生成代理对象的方法，并在实现的 invoke() 方法中为代理对象织入增强方法
 
 	/** use serialVersionUID from Spring 1.2 for interoperability. */
 	private static final long serialVersionUID = 5531744639992436476L;
